@@ -1,0 +1,215 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>光栅化成像-光栅化 | Hexo</title><script>var config = {"hostname":"http://example.com","root":"/","preload":false,"path":""}</script><link rel="stylesheet" href="/css/arknights.css"><link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.4.0/styles/atom-one-dark-reasonable.min.css"><style>@font-face {
+ font-family: BenderLight;
+ src: local('Bender'), url("/font/BenderLight.ttf");
+}
+@font-face {
+ font-family: 'JetBrains Mono';
+ src: local('JetBrains Mono'), url('/font/JetBrainsMono-Regular.woff2') format('woff2');
+}</style><meta name="generator" content="Hexo 6.1.0"></head><body style="background-image:url(https://ak.hypergryph.com/assets/index/images/ak/pc/bk.jpg);"><div id="cursor-container"><div id="cursor-outer"></div><div id="cursor-effect"></div></div><main><header><nav><div class="navBtn"><i class="navBtnIcon"><span class="navBtnIconBar"></span><span class="navBtnIconBar"></span><span class="navBtnIconBar"></span></i></div><ol class="navContent"><li class="navItem search-header"><input autocomplete="off" autocorrect="off" autocapitalize="none" placeholder="数据检索" spellcheck="false" maxlength="50" type="text" id="search-input"></li><li class="navItem"><a href="/"><span class="navItemTitle">Home</span></a></li><li class="navItem"><a href="/archives/"><span class="navItemTitle">Archives</span></a></li></ol></nav><div class="search-popup"><div id="search-result"></div></div></header><article><div id="post-bg"><div id="post-title"><h1>光栅化成像-光栅化</h1><div id="post-info"><span>First Post:<span class="control"><time datetime="2022-05-05T15:58:23.000Z" id="date"> 2022-05-05</time></span></span><br><span>Last Update:<span class="control"><time datetime="2022-05-05T18:21:11.287Z" id="updated"> 2022-05-06</time></span></span></div></div><hr><div id="post-content"><h1 id="现代计算机图形学基础入门"><a href="#现代计算机图形学基础入门" class="headerlink" title="现代计算机图形学基础入门"></a>现代计算机图形学基础入门</h1><h2 id="光栅化成像"><a href="#光栅化成像" class="headerlink" title="光栅化成像"></a>光栅化成像</h2><h3 id="光栅化"><a href="#光栅化" class="headerlink" title="光栅化"></a>光栅化</h3><p>本节内容附加资料：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/144330664">计算机图形学三：直线光栅化的数值微分算法,中点Brensenham算法和三角形的光栅化 - 知乎 (zhihu.com)</a></li>
+</ul>
+<p>在进入具体的直线光栅化以及三角形光栅化算法之前，我们首先需要知道光栅化是一个什么样的过程。</p>
+<p><strong>简单来说光栅化的目的就是将想要展现的物体给真正现实到屏幕上的过程</strong>，因为我们的物体其实都是一个个顶点数据来表示的，如何将<strong>这些蕴含几何信息的数据转化为屏幕上的像素点</strong>就是光栅化所考虑的东西。</p>
+<p>比如说一条直线，究竟该用哪些像素点去逼近它，一个三角形，又用哪些像素集合表示它，这都是光栅化的过程。</p>
+<p>在上一节中物体已经被映射到了屏幕上，那么屏幕是如何显示出来的呢</p>
+<h4 id="三角形的光栅化"><a href="#三角形的光栅化" class="headerlink" title="三角形的光栅化"></a>三角形的光栅化</h4><p>为什么不是四边形五边形的光栅化，偏偏要谈三角形呢，因为三角形是最基本的多边形，大部分的模型都是用一个个三角形面表示，且任意的其它多边形其实都可以转化成多个三角形的形式，因此三角形的光栅化可以说是图形学中最基础的部分了。</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220329190734117.png" alt="image-20220329190734117"></p>
+<p>那么三角形会在屏幕上被显示成什么呢</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220329192231788.png" alt="image-20220329192231788"></p>
+<h5 id="离散化三角形"><a href="#离散化三角形" class="headerlink" title="离散化三角形"></a>离散化三角形</h5><p>做到这一步我们需要<strong>采样</strong></p>
+<p><strong>请注意，采样的概念在接下来的文章中将会出现多次</strong></p>
+<p>概念化解释：取样也叫采样，是把连续的模拟量用一个个离散的点来表示。将时间轴上连续的信号每隔一定的时间间隔抽取出一个信号的幅度样本，使其成为时间上离散的脉冲序列。</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220329192448407.png" alt="image-20220329192448407"></p>
+<p>如果我们将各个像素的中心点是否在三角形中作为唯一的判定标准，那么三角形将会被这样显示</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220329192924128.png" alt="image-20220329192924128"></p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220329193030706.png" alt="image-20220329193030706"></p>
+<p>对应的伪代码如下</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220329192937413.png" alt="image-20220329192937413"></p>
+<p>经过这样的简单采样，三角形将会被这样显示出来</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220329192755803.png" alt="image-20220329192755803"></p>
+<h5 id="内与外"><a href="#内与外" class="headerlink" title="内与外"></a>内与外</h5><p>上面提到的采样是针对整个屏幕空间进行的，其中有一个函数inside(…)负责返回像素判定点是否在三角形内，我们该如何实现它呢</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220329194206955.png" alt="image-20220329194206955"></p>
+<p>例如在这幅图中，该如何判断任意一点$Q$是否在三角形$P_0P_1P_2$之内呢</p>
+<p>利用<strong>叉乘的性质</strong>，如果满足</p>
+<ul>
+<li>$P_0P_1 × P_0Q$</li>
+<li>$P_1P_2 × P_1Q$</li>
+<li>$P_2P_0 × P_2Q$</li>
+</ul>
+<p>以上三个多项式结果同号，则点$Q$在三角形$P_0P_1P_2$内，否则不在</p>
+<h5 id="边界情况"><a href="#边界情况" class="headerlink" title="边界情况"></a>边界情况</h5><p>如果空间中有多个三角形，而一个像素采样点恰巧在这两个三角形的边界处，那该如何判定呢</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220329200751279.png" alt="image-20220329200751279"></p>
+<p>对于这种情况需要自己进行判断，并没有统一标准，我们需要知道图形学的宗旨：<strong>看起来真实就可以</strong></p>
+<h5 id="优化方法"><a href="#优化方法" class="headerlink" title="优化方法"></a>优化方法</h5><p>因此自然的，只需要遍历每一个点就可以得出三角形的光栅化结果了，当然我们还可以进一步的进行优化，因为显然并没有必要去测试屏幕中的每一个点，一个三角形面可能只占屏幕很小的部分，可以利用一个包围盒（bounding box）包围住想要测试的三角形，只对该包围盒内的点进行采样测试</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220329200634160.png" alt="image-20220329200634160"></p>
+<p>除了包围盒外还有多种优化方法，例如在下面这幅图中，找到第一个判定成功的像素点后，直接进行后续同行的判定</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220329201100034.png" alt="image-20220329201100034"></p>
+<p>不同的方法适用于不同的情况，请灵活使用</p>
+<h4 id="走样与反走样"><a href="#走样与反走样" class="headerlink" title="走样与反走样"></a>走样与反走样</h4><p>如果我们就此结束，将上一节中采样得到的离散化三角形显示出来的话，会是这种情况</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220329202224544.png" alt="image-20220329202224544"></p>
+<p>发生这种不真实的，我们不想要的现象被称为<strong>走样</strong>，走样产生的原因是<strong>采样不足</strong>，即采样量变化的过快，而采样速率跟不上，这里出现了多个名词，我们将会一一解释</p>
+<h5 id="走样-Aliasing"><a href="#走样-Aliasing" class="headerlink" title="走样 Aliasing"></a>走样 Aliasing</h5><p>一张图片被放大会出现锯齿、拍摄电脑屏幕会出现奇怪的波纹、快速转动的车轮会看起来像是在倒转。这些现象都可以被称为“走样”，产生的原因即是“采样”不足。</p>
+<p>以上提到的三种情况分别对应以下名词：锯齿、摩尔纹以及车轮效应。</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330191600609.png" alt="image-20220330191600609"></p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330191622753.png" alt="image-20220330191622753"></p>
+<p>其中锯齿与摩尔纹是屏幕在空间上的采样不足，而发生在现实中的倒转车轮效果则是大脑对光线的时间的采样不足。</p>
+<h5 id="采样-Sample"><a href="#采样-Sample" class="headerlink" title="采样 Sample"></a>采样 Sample</h5><p>采样又名抽样，就像检测工厂中产品合格率使用的抽样调查一样</p>
+<p><strong>采样在信号处理上有更多的含义，在这里不过多叙述，仅仅介绍一些基础概念</strong></p>
+<p>上文已经提过，出现走样的原因是<strong>采样量变化的过快，而采样速率跟不上</strong>，如图所示</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330192718447.png" alt="image-20220330192718447"></p>
+<p>使用同样的采样速率，不同频率的函数采样后的效果不同，可以观察到频率高的失真度越大</p>
+<p>在更极端一点的情况下，两种截然不同的信号在一种采样方式下，可能会得到完全相同的结果</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330193203407.png" alt="image-20220330193203407"></p>
+<h6 id="滤波-Filtering"><a href="#滤波-Filtering" class="headerlink" title="滤波 Filtering"></a>滤波 Filtering</h6><p>首先我们来看一下，一张图片经过<strong>傅里叶变换</strong>后从时域转变为频域的效果</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330193815732.png" alt="image-20220330193815732"></p>
+<p>右侧这张图像的含义是</p>
+<ul>
+<li>中心点为低频信号，四周为高频信号</li>
+<li>十字效果产生的原因是图像非四方连续，导致信号的突变</li>
+</ul>
+<p>如果你还记得之前提到的内容的话，你就能知道这里的低频与高频的含义</p>
+<ul>
+<li>低频信号指颜色变换程度较小的地方</li>
+<li>高频信号值颜色变换程度较大的地方</li>
+</ul>
+<p>那么如果可以对图像的信号进行处理以后，再使用逆傅里叶变换逆向回图像会产生什么效果呢</p>
+<p><strong>滤波</strong>：将信号中特定波段频率滤除的操作</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330194249398.png" alt="image-20220330194249398"></p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330194259918.png" alt="image-20220330194259918"></p>
+<p>当然还可以对特定频段的信号进行过滤，产生出介于两者之间的效果</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330195414513.png" alt="image-20220330195414513"></p>
+<h6 id="卷积-Convolution"><a href="#卷积-Convolution" class="headerlink" title="卷积 Convolution"></a>卷积 Convolution</h6><p><strong>这里的卷积是图形学上简化版本的卷积</strong></p>
+<p>例如在如下的操作中</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330202058951.png" alt="image-20220330202058951"></p>
+<p>在Result中计算的结果，是Signal中的值经过Filter（卷积核&#x2F;滤波器）对周围值按权取值平均计算出的结果</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330202110849.png" alt="image-20220330202110849"></p>
+<p>并依次往下进行，直至计算完Signal中的所有值</p>
+<p>卷积有如下定理</p>
+<p><strong>在时域中的卷积，等于在频域中的乘积</strong></p>
+<p><strong>在时域中的乘积，等于在频域中的卷积</strong></p>
+<p>由此在应用卷积时有以下两种路线</p>
+<p>一：</p>
+<ul>
+<li>在时域中使用卷积滤波</li>
+</ul>
+<p>二：</p>
+<ul>
+<li>使用傅里叶变换从时域转换为频域</li>
+<li>点乘由傅里叶变换来的卷积核</li>
+<li>使用逆傅里叶变换从频域转换为时域</li>
+</ul>
+<p>下图解释了这一定理，两种路线可以得到相同的效果</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330203204228.png" alt="image-20220330203204228"></p>
+<h6 id="滤波器-Filter"><a href="#滤波器-Filter" class="headerlink" title="滤波器 Filter"></a>滤波器 Filter</h6><p>滤波器有许多种，在此仅仅介绍一种盒状滤波器（Box Filter）</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330205320937.png" alt="image-20220330205320937"></p>
+<p>将这个滤波器表示为图像如下</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330205336326.png" alt="image-20220330205336326"></p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330205345971.png" alt="image-20220330205345971"></p>
+<ul>
+<li>盒子的大小也有影响，<strong>更大的滤波器会使得图像丧失更多高频信号，即更加模糊</strong></li>
+</ul>
+<p>这一点可以这么思考</p>
+<ul>
+<li>如果盒子超过了图像尺寸，那么将会只显示出一个颜色</li>
+<li>如果盒子等于一个像素的大小，那么相当于没有做任何处理</li>
+</ul>
+<h6 id="时域-Spatial-Domain与频域-Frequency-Domain上的采样"><a href="#时域-Spatial-Domain与频域-Frequency-Domain上的采样" class="headerlink" title="时域 Spatial Domain与频域 Frequency Domain上的采样"></a>时域 Spatial Domain与频域 Frequency Domain上的采样</h6><p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220330221911118.png" alt="image-20220330221911118"></p>
+<p>图中左侧为时域，右侧为频域，对应关系为</p>
+<ul>
+<li>左侧经过傅里叶变换可得到右侧</li>
+<li>左侧区域的采样（a）乘上（c）冲激函数得到结果（e）,与此对应的频域操作则为卷积，即右侧的操作过程</li>
+<li>表现结果为（f）不断在冲激函数上重复的频谱</li>
+</ul>
+<p>我们不需要过多理解这些内容，这里我们只要知道<strong>在频域上的采样效果：在冲激函数上不断重复的频谱</strong></p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220331170738583.png" alt="image-20220331170738583"></p>
+<p>如图所示，上图是一种在频域的临界采样情况，<strong>若采样时采样间隔变大，则导致采样频率降低，不同的频谱会堆叠在一起</strong>，即图中的Aliasing，这里便发生了<strong>走样</strong></p>
+<h5 id="反走样Antialiasing"><a href="#反走样Antialiasing" class="headerlink" title="反走样Antialiasing"></a>反走样Antialiasing</h5><p>走样发生的原因可总结为<strong>采样的速率慢于被采样对象的变化频率</strong>，在图形成像上的反走样由此可选择路线为</p>
+<ul>
+<li>增大采样速率<ul>
+<li>增加屏幕分辨率</li>
+</ul>
+</li>
+<li>降低被采样对象变化频率<ul>
+<li><strong>采样前</strong>过滤掉高频信号</li>
+</ul>
+</li>
+</ul>
+<p>前者不必多说，即像素点的增加会减小空间上的采样间隔，对于后者而言如图所示</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220331183833935.png" alt="image-20220331183833935"></p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220331185101874.png" alt="image-20220331185101874"></p>
+<p>非常值得注意的一点是：<strong>在采样前进行低通滤波处理</strong>，否则不会得到理想的效果</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220331185345747.png" alt="image-20220331185345747"></p>
+<p>[^两种情况]: 左侧为Blurred Aliasing，右侧为Antialiasing</p>
+<p>原因很好理解，因为对已经发生alias的频谱再使用低通滤波处理，得到的频谱仍有可能是存在alias的，所以模糊掉的只是已经存在的锯齿</p>
+<p>对于Pre-Filter的选择多种多样，在此以一个像素大小的Box Filter为例</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220331191532805.png" alt="image-20220331191532805"></p>
+<p>如图所示，在这一个像素大小的区域中，将根据图形覆盖的面积决定颜色的分布量，不再是最开始的采样结果中的01分布，而是具有过渡的状态</p>
+<p>以MSAA为例，将每个像素点的采样点从中心变为N×N的形势，对覆盖点的数量进行颜色插值</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220331191909666.png" alt="image-20220331191909666"></p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220331191928769.png" alt="image-20220331191928769"></p>
+<p>虽然图示的采样点仅仅是被简单的划分出来，但在实际应用中会有多种划分方式</p>
+<p>反走样，或者在这里更多指的是抗锯齿，的方法有许多种，更多的思路不在此一一解释</p>
+<h4 id="深度缓冲-Z-Buffer"><a href="#深度缓冲-Z-Buffer" class="headerlink" title="深度缓冲 Z-Buffer"></a>深度缓冲 Z-Buffer</h4><p>目前为止我们所接触的都是单个图形的光栅化过程，当场景中存在多个物体该如何判断它们的前后关系呢</p>
+<p>非常朴素的做法是根据物体的前后关系进行绘制顺序排列，即靠后的物体先绘制，靠前的物体后绘制，这种方法被称为<strong>画家算法</strong></p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220331202436285.png" alt="image-20220331202436285"></p>
+<p>其中的问题不言而喻，对于上图这种部分遮挡又部分被遮挡的情况，该算法无法完成绘制</p>
+<p><strong>但我们可以把画家算法的思路从物体转移到像素，或者说是采样点上去，这就是Z-Buffer</strong></p>
+<ul>
+<li>Z-Buffer算法需要为每个像素点维持一个深度数组记为zbuffer，其每个位置初始值置为无穷大（即离摄像机无穷远）。</li>
+<li>随后我们遍历每个三角形面上的每一个像素点[x,y]，如果该像素点的深度值z，小于zbuffer[x,y]中的值，则更新zbuffer[x,y]值为该点深度值z，并同时更新该像素点[x,y]的颜色为该三角形面上的该点的颜色。</li>
+</ul>
+<p><strong>在接下来的内容中，为了便于理解z将被一直取正值，即值越大意味着离我们的距离越远，虽然在之前z一直是一个负数</strong></p>
+<p>至此我们可以得到正确的遮挡关系了，在渲染时，会额外多一张反应z值的深度图</p>
+<ul>
+<li>frame buffer存储颜色信息</li>
+<li>depth buffer（z-buffer）存储深度信息</li>
+</ul>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220331203156092.png" alt="image-20220331203156092"></p>
+<p>关于Z-Buffer算法的更多解释如下</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220331203351837.png" alt="image-20220331203351837"></p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220331203408085.png" alt="image-20220331203408085"></p>
+<p>这个算法的时间复杂度是$O(n)$，因为它仅仅是找出了深度值最小的三角面，并没有进行排序，我们无须担心这一点的计算量很大，你可以相信你的GPU受过特殊训练</p>
+<h4 id="作业内容"><a href="#作业内容" class="headerlink" title="作业内容"></a>作业内容</h4><h5 id="任务目标"><a href="#任务目标" class="headerlink" title="任务目标"></a>任务目标</h5><p>在上次作业中，虽然我们在屏幕上画出一个线框三角形，但这看起来并不是那么的有趣。所以这一次我们继续推进一步——在屏幕上画出一个实心三角形，换言之，栅格化一个三角形。</p>
+<p>上一次作业中，在视口变化之后，我们调用了函数<code>rasterize_wireframe(const Triangle&amp; t)</code>。但这一次，你需要自己填写并调用函数 <code>rasterize_triangle(const Triangle&amp; t)</code>。</p>
+<p>该函数的内部工作流程如下：</p>
+<ul>
+<li><p>创建三角形的 2 维 bounding box。</p>
+</li>
+<li><p>遍历此 bounding box 内的所有像素（使用其整数索引）。然后，使用像素中心的屏幕空间坐标来检查中心点是否在三角形内。</p>
+</li>
+<li><p>如果在内部，则将其位置处的插值深度值 (interpolated depth value) 与深度缓冲区 (depth buffer) 中的相应值进行比较。</p>
+</li>
+<li><p>如果当前点更靠近相机，请设置像素颜色并更新深度缓冲区 (depth buffer)。你需要修改的函数如下：</p>
+<ul>
+<li><code>rasterize_triangle(...)</code>: 执行三角形栅格化算法</li>
+<li><code>static bool insideTriangle(...)</code>: 测试点是否在三角形内</li>
+</ul>
+</li>
+<li><p>你可以修改此函数的定义，这意味着，你可以按照自己的方式更新返回类型或函数参数。因为我们只知道三角形三个顶点处的深度值，所以对于三角形内部的像素，我们需要用插值的方法得到其深度值。我们已经为你处理好了这一部分，因为有关这方面的内容尚未在课程中涉及。插值的深度值被储存在变量 z_interpolated中。请注意我们是如何初始化 depth buffer 和注意 z values 的符号。为了方便同学们写代码，我们将 z 进行了反转，保证都是正数，并且越大表示离视点越远。在此次作业中，你无需处理旋转变换，只需为模型变换返回一个单位矩阵。最后，我们提供了两个 hard-coded 三角形来测试你的实现，如果程序实现正确，你将看到如下所示的输出图像:</p>
+<p><img src="/2022/05/05/GraphicsNote/02/Graphics02/image-20220331211337931.png" alt="image-20220331211337931"></p>
+<p><strong>需要注意的是该作业框架中没有补充透视投影变换矩阵函数内容和模型变换矩阵函数内容，这里仅仅需要补充前者</strong></p>
+<p><strong>提高内容</strong>：</p>
+<p>用 super-sampling 处理 Anti-aliasing :</p>
+<p>你可能会注意到，当我们放大图像时，图像边缘会有锯齿感。我们可以用 super-sampling来解决这个问题，即对每个像素进行 2 * 2 采样，并比较前后的结果 (这里并不需要考虑像素与像素间的样本复用)。需要注意的点有，对于像素内的每一个样本都需要维护它自己的深度值，即每一个像素都需要维护一个 sample list。最后，如果你实现正确的话，你得到的三角形不应该有不正常的黑边。</p>
+</li>
+</ul>
+<h5 id="代码解释"><a href="#代码解释" class="headerlink" title="代码解释"></a>代码解释</h5><p><strong>使用以下代码并不会得到与作业图完全相同的结果，因为这次的框架内容并没有让z保持正值</strong></p>
+<p>若想得到相同的结果，请在将摄像机以Z轴旋转180°</p>
+<p>判断在三角形内部的采样点</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">bool</span> <span class="hljs-title">insideTriangle</span><span class="hljs-params">(<span class="hljs-type">int</span> x, <span class="hljs-type">int</span> y, <span class="hljs-type">const</span> Vector3f* _v)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">// TODO : Implement this function to check if the point (x, y) is inside the triangle represented by _v[0], _v[1], _v[2]</span><br><br>    <span class="hljs-comment">//测试点的坐标为(x, y)</span><br>    <span class="hljs-comment">//三角形三点的坐标分别为_v[0], _v[1], _v[2]</span><br><br>    <span class="hljs-comment">//叉乘公式为(x1, y1)X(x2, y2) = x1*y2 - y1*x2</span><br><br>    <span class="hljs-comment">//（1）准备三角形各边的的向量</span><br>    Eigen::Vector2f side1;<br>    side1 &lt;&lt; _v[<span class="hljs-number">1</span>].<span class="hljs-built_in">x</span>() - _v[<span class="hljs-number">0</span>].<span class="hljs-built_in">x</span>(), _v[<span class="hljs-number">1</span>].<span class="hljs-built_in">y</span>() - _v[<span class="hljs-number">0</span>].<span class="hljs-built_in">y</span>();<br>    Eigen::Vector2f side2;<br>    side2 &lt;&lt; _v[<span class="hljs-number">2</span>].<span class="hljs-built_in">x</span>() - _v[<span class="hljs-number">1</span>].<span class="hljs-built_in">x</span>(), _v[<span class="hljs-number">2</span>].<span class="hljs-built_in">y</span>() - _v[<span class="hljs-number">1</span>].<span class="hljs-built_in">y</span>();<br>    Eigen::Vector2f side3;<br>    side3 &lt;&lt; _v[<span class="hljs-number">0</span>].<span class="hljs-built_in">x</span>() - _v[<span class="hljs-number">2</span>].<span class="hljs-built_in">x</span>(), _v[<span class="hljs-number">0</span>].<span class="hljs-built_in">y</span>() - _v[<span class="hljs-number">2</span>].<span class="hljs-built_in">y</span>();<br><br>    <span class="hljs-comment">//（2）准备测量点和三角形各点连线的向量</span><br>    Eigen::Vector2f v1;<br>    v1 &lt;&lt; x - _v[<span class="hljs-number">0</span>].<span class="hljs-built_in">x</span>(), y - _v[<span class="hljs-number">0</span>].<span class="hljs-built_in">y</span>();<br>    Eigen::Vector2f v2;<br>    v2 &lt;&lt; x - _v[<span class="hljs-number">1</span>].<span class="hljs-built_in">x</span>(), y - _v[<span class="hljs-number">1</span>].<span class="hljs-built_in">y</span>();<br>    Eigen::Vector2f v3;<br>    v3 &lt;&lt; x - _v[<span class="hljs-number">2</span>].<span class="hljs-built_in">x</span>(), y - _v[<span class="hljs-number">2</span>].<span class="hljs-built_in">y</span>();<br><br>    <span class="hljs-comment">//（3）三角形各边的的向量叉乘测量点和三角形各点连线的向量</span><br>    <span class="hljs-type">float</span> z1 = side1.<span class="hljs-built_in">x</span>() * v1.<span class="hljs-built_in">y</span>() - side1.<span class="hljs-built_in">y</span>() * v1.<span class="hljs-built_in">x</span>();<br>    <span class="hljs-type">float</span> z2 = side2.<span class="hljs-built_in">x</span>() * v2.<span class="hljs-built_in">y</span>() - side2.<span class="hljs-built_in">y</span>() * v2.<span class="hljs-built_in">x</span>();<br>    <span class="hljs-type">float</span> z3 = side3.<span class="hljs-built_in">x</span>() * v3.<span class="hljs-built_in">y</span>() - side3.<span class="hljs-built_in">y</span>() * v3.<span class="hljs-built_in">x</span>();<br><br>    <span class="hljs-comment">//（4）判断叉乘结果是否有相同的符号</span><br>    <span class="hljs-keyword">if</span> ((z1 &gt; <span class="hljs-number">0</span> &amp;&amp; z2 &gt; <span class="hljs-number">0</span> &amp;&amp; z3 &gt; <span class="hljs-number">0</span>) || (z1 &lt; <span class="hljs-number">0</span> &amp;&amp; z2 &lt; <span class="hljs-number">0</span> &amp;&amp; z3 &lt; <span class="hljs-number">0</span>))<br>    &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>或者是另一种简化版本</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">bool</span> <span class="hljs-title">insideTriangle</span><span class="hljs-params">(<span class="hljs-type">int</span> x, <span class="hljs-type">int</span> y, <span class="hljs-type">const</span> Vector3f* _v, <span class="hljs-type">int</span>)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">Vector2f <span class="hljs-title">point</span><span class="hljs-params">(x, y)</span></span>;<br>    <span class="hljs-comment">//A-0 B-1 C-2</span><br>    <span class="hljs-comment">//_v中存储的是三角形的三个顶点的三维坐标，使用.head取其x与y进行判断即可</span><br>    Vector2f AB = _v[<span class="hljs-number">1</span>].<span class="hljs-built_in">head</span>(<span class="hljs-number">2</span>) - _v[<span class="hljs-number">0</span>].<span class="hljs-built_in">head</span>(<span class="hljs-number">2</span>);<br>    Vector2f BC = _v[<span class="hljs-number">2</span>].<span class="hljs-built_in">head</span>(<span class="hljs-number">2</span>) - _v[<span class="hljs-number">1</span>].<span class="hljs-built_in">head</span>(<span class="hljs-number">2</span>);<br>    Vector2f CA = _v[<span class="hljs-number">0</span>].<span class="hljs-built_in">head</span>(<span class="hljs-number">2</span>) - _v[<span class="hljs-number">2</span>].<span class="hljs-built_in">head</span>(<span class="hljs-number">2</span>);<br><br>    Vector2f AP = point - _v[<span class="hljs-number">0</span>].<span class="hljs-built_in">head</span>(<span class="hljs-number">2</span>);<br>    Vector2f BP = point - _v[<span class="hljs-number">1</span>].<span class="hljs-built_in">head</span>(<span class="hljs-number">2</span>);<br>    Vector2f CP = point - _v[<span class="hljs-number">2</span>].<span class="hljs-built_in">head</span>(<span class="hljs-number">2</span>);<br><br>    <span class="hljs-keyword">return</span> AB[<span class="hljs-number">0</span>] * AP[<span class="hljs-number">1</span>] - AB[<span class="hljs-number">1</span>] * AP[<span class="hljs-number">0</span>] &gt; <span class="hljs-number">0</span><br>        &amp;&amp; BC[<span class="hljs-number">0</span>] * BP[<span class="hljs-number">1</span>] - BC[<span class="hljs-number">1</span>] * BP[<span class="hljs-number">0</span>] &gt; <span class="hljs-number">0</span><br>        &amp;&amp; CA[<span class="hljs-number">0</span>] * CP[<span class="hljs-number">1</span>] - CA[<span class="hljs-number">1</span>] * CP[<span class="hljs-number">0</span>] &gt; <span class="hljs-number">0</span><br>        ||<br>        AB[<span class="hljs-number">0</span>] * AP[<span class="hljs-number">1</span>] - AB[<span class="hljs-number">1</span>] * AP[<span class="hljs-number">0</span>] &lt; <span class="hljs-number">0</span><br>        &amp;&amp; BC[<span class="hljs-number">0</span>] * BP[<span class="hljs-number">1</span>] - BC[<span class="hljs-number">1</span>] * BP[<span class="hljs-number">0</span>] &lt; <span class="hljs-number">0</span><br>        &amp;&amp; CA[<span class="hljs-number">0</span>] * CP[<span class="hljs-number">1</span>] - CA[<span class="hljs-number">1</span>] * CP[<span class="hljs-number">0</span>] &lt; <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>三角形的光栅化</p>
+<p><strong>框架注释中给出的深度插值的部分，需要使用c++17标准</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-type">void</span> rst::rasterizer::<span class="hljs-built_in">rasterize_triangle</span>(<span class="hljs-type">const</span> Triangle&amp; t) <br>&#123;<br>    <span class="hljs-comment">//执行三角形栅格化算法</span><br>    <span class="hljs-keyword">auto</span> v = t.<span class="hljs-built_in">toVector4</span>();<br>    <span class="hljs-comment">//f12进入toVector4()处后可以发现返回值是array&lt;Vector4f, 3&gt;</span><br>    <span class="hljs-comment">//我的理解：v是一个包含三个顶点信息的数组，每个顶点坐标用Vector4f（齐次坐标）表示</span><br>    <span class="hljs-comment">// TODO : Find out the bounding box of current triangle.</span><br>    <span class="hljs-comment">// iterate through the pixel and find if the current pixel is inside the triangle</span><br><br>    <span class="hljs-comment">//（1）用矩形将三角形包围起来,找到矩形的四个顶点，构建三角形包围盒</span><br>    <span class="hljs-type">float</span> min_x = std::<span class="hljs-built_in">floor</span>(std::<span class="hljs-built_in">min</span>(v[<span class="hljs-number">0</span>].<span class="hljs-built_in">x</span>(), std::<span class="hljs-built_in">min</span>(v[<span class="hljs-number">1</span>].<span class="hljs-built_in">x</span>(), v[<span class="hljs-number">2</span>].<span class="hljs-built_in">x</span>())));<br>    <span class="hljs-type">float</span> max_x = std::<span class="hljs-built_in">ceil</span>(std::<span class="hljs-built_in">max</span>(v[<span class="hljs-number">0</span>].<span class="hljs-built_in">x</span>(), std::<span class="hljs-built_in">max</span>(v[<span class="hljs-number">1</span>].<span class="hljs-built_in">x</span>(), v[<span class="hljs-number">2</span>].<span class="hljs-built_in">x</span>())));<br>    <span class="hljs-type">float</span> min_y = std::<span class="hljs-built_in">floor</span>(std::<span class="hljs-built_in">min</span>(v[<span class="hljs-number">0</span>].<span class="hljs-built_in">y</span>(), std::<span class="hljs-built_in">min</span>(v[<span class="hljs-number">1</span>].<span class="hljs-built_in">y</span>(), v[<span class="hljs-number">2</span>].<span class="hljs-built_in">y</span>())));<br>    <span class="hljs-type">float</span> max_y = std::<span class="hljs-built_in">ceil</span>(std::<span class="hljs-built_in">max</span>(v[<span class="hljs-number">0</span>].<span class="hljs-built_in">y</span>(), std::<span class="hljs-built_in">max</span>(v[<span class="hljs-number">1</span>].<span class="hljs-built_in">y</span>(), v[<span class="hljs-number">2</span>].<span class="hljs-built_in">y</span>())));<br><br>    <span class="hljs-comment">//（2）遍历三角形包围盒中的所有测试点</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> x = min_x; x &lt;= max_x; x++)<br>    &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> y = min_y; y &lt;= max_y; y++)<br>        &#123;<br>            <span class="hljs-comment">// If so, use the following code to get the interpolated z value.</span><br>            <span class="hljs-comment">//auto[alpha, beta, gamma] = computeBarycentric2D(x, y, t.v);</span><br>            <span class="hljs-comment">//float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());</span><br>            <span class="hljs-comment">//float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();</span><br>            <span class="hljs-comment">//z_interpolated *= w_reciprocal;</span><br><br>            <span class="hljs-comment">// TODO : set the current pixel (use the set_pixel function) to the color of the triangle (use getColor function) if it should be painted.</span><br><br>            <span class="hljs-comment">//判断是否在三角形内,如果在内部，则将其位置处的插值深度值 (interpolated depth value) 与深度缓冲区 (depth buffer) 中的相应值进行比较。</span><br>            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">insideTriangle</span>(x, y, t.v))<br>            &#123;<br>                <span class="hljs-comment">//以下是计算插值的内容，暂时看不懂,先抄别人博客补全</span><br>                <span class="hljs-comment">//最小深度，默认是无穷远</span><br>                <span class="hljs-type">float</span> min_depth = FLT_MAX;<br><br>                <span class="hljs-comment">//如果在三角形内部，计算当前深度,得到当前最小深度</span><br>                <span class="hljs-keyword">auto</span> tup = <span class="hljs-built_in">computeBarycentric2D</span>(x + <span class="hljs-number">0.5</span>, y + <span class="hljs-number">0.5</span>, t.v);<br><br>                <span class="hljs-type">float</span> alpha, beta, gamma;<br>                std::<span class="hljs-built_in">tie</span>(alpha, beta, gamma) = tup;<br>                <span class="hljs-type">float</span> w_reciprocal = <span class="hljs-number">1.0</span> / (alpha / v[<span class="hljs-number">0</span>].<span class="hljs-built_in">w</span>() + beta / v[<span class="hljs-number">1</span>].<span class="hljs-built_in">w</span>() + gamma / v[<span class="hljs-number">2</span>].<span class="hljs-built_in">w</span>());<br>                <span class="hljs-type">float</span> z_interpolated = alpha * v[<span class="hljs-number">0</span>].<span class="hljs-built_in">z</span>() / v[<span class="hljs-number">0</span>].<span class="hljs-built_in">w</span>() + beta * v[<span class="hljs-number">1</span>].<span class="hljs-built_in">z</span>() / v[<span class="hljs-number">1</span>].<span class="hljs-built_in">w</span>() + gamma * v[<span class="hljs-number">2</span>].<span class="hljs-built_in">z</span>() / v[<span class="hljs-number">2</span>].<span class="hljs-built_in">w</span>();<br>                z_interpolated *= w_reciprocal;<br>                min_depth = std::<span class="hljs-built_in">min</span>(min_depth, z_interpolated);<br><br>                <span class="hljs-comment">//如果x,y所在点的深度小于z-buffer的深度，</span><br>                <span class="hljs-keyword">if</span> (depth_buf[<span class="hljs-built_in">get_index</span>(x, y)] &gt; min_depth)<br>                &#123;<br>                    <span class="hljs-comment">//获得最上层应该渲染的颜色</span><br>                    Vector3f color = t.<span class="hljs-built_in">getColor</span>();<br>                    Vector3f point;<br>                    point &lt;&lt; x, y, min_depth;<br>                    <span class="hljs-comment">//更新深度</span><br>                    depth_buf[<span class="hljs-built_in">get_index</span>(x, y)] = min_depth;<br>                    <span class="hljs-comment">//更新所在点的颜色</span><br>                    <span class="hljs-built_in">set_pixel</span>(point, color);<br>                &#125;<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>提高部分</p>
+<p>在上个函数（1）后加入以下部分</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-comment">//MSAA 2*2</span><br>std::vector&lt;Vector2f&gt; multSample<br>&#123;<br>    &#123; <span class="hljs-number">0.25</span>, <span class="hljs-number">0.75</span> &#125;,<br>    &#123; <span class="hljs-number">0.75</span>, <span class="hljs-number">0.75</span> &#125;,<br>    &#123; <span class="hljs-number">0.25</span>, <span class="hljs-number">0.25</span> &#125;,<br>    &#123; <span class="hljs-number">0.75</span>, <span class="hljs-number">0.25</span> &#125;<br>&#125;;<br><br> <span class="hljs-type">int</span> count = <span class="hljs-number">0</span>;<br> <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">4</span>; i++)<br> &#123;<br>     <span class="hljs-keyword">if</span> (<span class="hljs-built_in">insideTriangle</span>(x + multSample[i].<span class="hljs-built_in">x</span>(), y + multSample[i].<span class="hljs-built_in">y</span>(), t.v))<br>     &#123;<br>     	count++;<br>     &#125;<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<p>并将原有的<code>if (insideTriangle(x, y, t.v))</code>改为<code>if (count)</code></p>
+<p>将颜色信息从<code>Vector3f color = t.getColor()</code>修改为<code>Vector3f color = t.getColor() * (count / 4.0)</code></p>
+<div id="paginator"></div></div><div id="post-footer"><div id="pages"><div id="footer-link" style="left: 50%;order: 0;border-left: 1px solid #fe2;padding-right: unset;max-width: calc(50% - 5px);"><a href="/2022/05/05/GraphicsNote/01/Graphics01/">光栅化成像-视图变换 Prev →</a></div></div></div><details id="reward"><summary>打赏</summary><div id="alipay"><span>支付宝 | Alipay</span><br><img src="/img/Alipay.png"></div><div id="wechat"><span>微信 | WeChat</span><br><img src="/img/WeChat.png"></div></details></div><div id="bottom-btn"><a id="to-top" onClick="index.scrolltop();" title="to top" style="opacity: 0; display: none;">∧</a></div></article><div class="aside-box"><aside><div id="aside-top"><div id="about"><a href="/" id="logo"><img src="https://ak.hypergryph.com/assets/index/images/ak/pc/faction/1.png" alt="Logo"></a><h1 id="Dr"><a href="/">John Doe</a></h1><div id="description"><p></p></div><!--if page.published === undefined--><section id="total"><a id="total-archives" href="/archives"><span class="total-title">Archives Total:</span><span class="total-number">5</span></a><div id="total-tags"><span class="total-title">Tags:</span><span class="total-number">4</span></div><div id="total-categories"><span class="total-title">Categories:</span><span class="total-number">2</span></div></section></div><div id="aside-block"><div id="toc-div"><h1>INDEX</h1><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%8E%B0%E4%BB%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8"><span class="toc-number">1.</span> <span class="toc-text">现代计算机图形学基础入门</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%89%E6%A0%85%E5%8C%96%E6%88%90%E5%83%8F"><span class="toc-number">1.1.</span> <span class="toc-text">光栅化成像</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%89%E6%A0%85%E5%8C%96"><span class="toc-number">1.1.1.</span> <span class="toc-text">光栅化</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E8%A7%92%E5%BD%A2%E7%9A%84%E5%85%89%E6%A0%85%E5%8C%96"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">三角形的光栅化</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A6%BB%E6%95%A3%E5%8C%96%E4%B8%89%E8%A7%92%E5%BD%A2"><span class="toc-number">1.1.1.1.1.</span> <span class="toc-text">离散化三角形</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%86%85%E4%B8%8E%E5%A4%96"><span class="toc-number">1.1.1.1.2.</span> <span class="toc-text">内与外</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BE%B9%E7%95%8C%E6%83%85%E5%86%B5"><span class="toc-number">1.1.1.1.3.</span> <span class="toc-text">边界情况</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BC%98%E5%8C%96%E6%96%B9%E6%B3%95"><span class="toc-number">1.1.1.1.4.</span> <span class="toc-text">优化方法</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B5%B0%E6%A0%B7%E4%B8%8E%E5%8F%8D%E8%B5%B0%E6%A0%B7"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">走样与反走样</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%B5%B0%E6%A0%B7-Aliasing"><span class="toc-number">1.1.1.2.1.</span> <span class="toc-text">走样 Aliasing</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%87%87%E6%A0%B7-Sample"><span class="toc-number">1.1.1.2.2.</span> <span class="toc-text">采样 Sample</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E6%BB%A4%E6%B3%A2-Filtering"><span class="toc-number">1.1.1.2.2.1.</span> <span class="toc-text">滤波 Filtering</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E5%8D%B7%E7%A7%AF-Convolution"><span class="toc-number">1.1.1.2.2.2.</span> <span class="toc-text">卷积 Convolution</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E6%BB%A4%E6%B3%A2%E5%99%A8-Filter"><span class="toc-number">1.1.1.2.2.3.</span> <span class="toc-text">滤波器 Filter</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E6%97%B6%E5%9F%9F-Spatial-Domain%E4%B8%8E%E9%A2%91%E5%9F%9F-Frequency-Domain%E4%B8%8A%E7%9A%84%E9%87%87%E6%A0%B7"><span class="toc-number">1.1.1.2.2.4.</span> <span class="toc-text">时域 Spatial Domain与频域 Frequency Domain上的采样</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%8D%E8%B5%B0%E6%A0%B7Antialiasing"><span class="toc-number">1.1.1.2.3.</span> <span class="toc-text">反走样Antialiasing</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B7%B1%E5%BA%A6%E7%BC%93%E5%86%B2-Z-Buffer"><span class="toc-number">1.1.1.3.</span> <span class="toc-text">深度缓冲 Z-Buffer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%9C%E4%B8%9A%E5%86%85%E5%AE%B9"><span class="toc-number">1.1.1.4.</span> <span class="toc-text">作业内容</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E7%9B%AE%E6%A0%87"><span class="toc-number">1.1.1.4.1.</span> <span class="toc-text">任务目标</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E8%A7%A3%E9%87%8A"><span class="toc-number">1.1.1.4.2.</span> <span class="toc-text">代码解释</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div></div></div><footer><nobr><span class="text-title">©</span><span class="text-content">1970 to 2020</span></nobr><br><nobr><span class="text-title">ICP</span><span class="text-content">——备案号——</span></nobr><br><text>published with <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></text><text> Theme <a target="_blank" rel="noopener" href="https://github.com/Yue-plus/hexo-theme-arknights">Arknight</a></text><wbr><text>by <a target="_blank" rel="noopener" href="https://github.com/Yue-plus">Yue_plus</a></text></footer></aside></div></main><canvas id="canvas-dust"></canvas><script src="/js/search.js"></script><script>const reset=_=>{}</script><script src="//unpkg.com/@highlightjs/cdn-assets@11.4.0/highlight.min.js"></script><script src="/js/arknights.js"></script><script>document.addEventListener("load",reset())</script></body></html>
