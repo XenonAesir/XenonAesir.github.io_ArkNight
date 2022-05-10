@@ -574,7 +574,7 @@ nav a {
   line-height: 40px;
   padding: 0 12px;
   display: inline-block;
-  padding: 6em 0;
+  padding: 3.230769230769231em 0;
   width: 100%;
   color: #fff;
 }
@@ -989,7 +989,6 @@ nav .navContent .navItem .navItemTitle {
     text-align: right;
   }
   .navContent .navItem a .navItemTitle::after {
-    left: -4px;
     border-left: 4px solid;
   }
   article {
